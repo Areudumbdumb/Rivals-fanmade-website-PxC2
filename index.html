@@ -1,0 +1,3424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RIVALS // ARENA HUB</title>
+
+<meta
+  name="description"
+  content="Fan-made Roblox Rivals inspired player hub by Prateek × ChatGPT."
+>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#07080c;
+  --panel:#10131a;
+  --panel2:#151923;
+  --line:rgba(255,255,255,.10);
+  --text:#f7f8fb;
+  --muted:#969dad;
+  --red:#ff3348;
+  --orange:#ff8a3d;
+  --lime:#c8ff32;
+  --cyan:#55e7ff;
+  --shadow:0 24px 80px rgba(0,0,0,.40);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 10% 10%,rgba(255,51,72,.17),transparent 25%),
+    radial-gradient(circle at 90% 18%,rgba(85,231,255,.10),transparent 24%),
+    linear-gradient(135deg,#050609 0%,#0a0d13 48%,#07080c 100%);
+  font-family:Arial,Helvetica,sans-serif;
+  overflow-x:hidden;
+}
+
+button,
+input,
+select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+button:disabled{
+  cursor:not-allowed;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+/* ==========================================================
+   BACKGROUND
+========================================================== */
+
+#bg{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:-4;
+}
+
+.noise{
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  opacity:.05;
+  background-image:radial-gradient(#fff .5px,transparent .5px);
+  background-size:5px 5px;
+}
+
+.grid{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:linear-gradient(to bottom,black,transparent 85%);
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 24px;
+  background:rgba(6,7,11,.82);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line);
+}
+
+.logo{
+  font-weight:1000;
+  letter-spacing:2px;
+  font-size:20px;
+}
+
+.logo b{
+  color:var(--red);
+}
+
+nav{
+  display:flex;
+  gap:20px;
+  color:var(--muted);
+  font-size:14px;
+  font-weight:700;
+}
+
+nav a:hover{
+  color:#fff;
+}
+
+/* ==========================================================
+   HERO
+========================================================== */
+
+.hero{
+  min-height:72vh;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:70px 20px 40px;
+  position:relative;
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:8%;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    var(--red),
+    transparent
+  );
+}
+
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.04);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:1px;
+  color:var(--muted);
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--lime);
+  box-shadow:0 0 16px var(--lime);
+}
+
+.hero h1{
+  margin:18px 0 8px;
+  font-size:clamp(58px,10vw,132px);
+  font-weight:1000;
+  letter-spacing:-7px;
+  line-height:.82;
+  background:linear-gradient(
+    90deg,
+    #fff 10%,
+    var(--red) 52%,
+    var(--orange)
+  );
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.hero p{
+  max-width:760px;
+  margin:22px auto 0;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.65;
+}
+
+.btn{
+  margin-top:26px;
+  padding:13px 19px;
+  border:0;
+  border-radius:11px;
+  color:#10130a;
+  background:var(--lime);
+  font-weight:1000;
+  box-shadow:0 12px 34px rgba(200,255,50,.16);
+  transition:.2s;
+}
+
+.btn:hover{
+  transform:translateY(-3px);
+  box-shadow:0 18px 45px rgba(200,255,50,.24);
+}
+
+.btn:disabled{
+  transform:none;
+  box-shadow:none;
+}
+
+/* ==========================================================
+   SECTIONS
+========================================================== */
+
+.section{
+  width:min(1180px,92%);
+  margin:0 auto 75px;
+}
+
+.title h2{
+  margin:0;
+  font-size:31px;
+  letter-spacing:-1px;
+}
+
+.title p{
+  margin:7px 0 22px;
+  color:var(--muted);
+}
+
+.grid2{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:18px;
+}
+
+@media(max-width:850px){
+  .grid2{
+    grid-template-columns:1fr;
+  }
+}
+
+.card{
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.055),
+    rgba(255,255,255,.025)
+  );
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(12px);
+}
+
+.card h3{
+  margin-top:0;
+}
+
+.muted{
+  color:var(--muted);
+}
+
+/* ==========================================================
+   SETUP
+========================================================== */
+
+.setup{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:14px;
+}
+
+.field{
+  display:grid;
+  gap:7px;
+}
+
+.field label{
+  font-size:11px;
+  font-weight:900;
+  color:var(--muted);
+  letter-spacing:1px;
+}
+
+.field input,
+.field select{
+  width:100%;
+  padding:12px 13px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  color:#fff;
+  background:#0c0f15;
+  outline:none;
+}
+
+.field input:focus,
+.field select:focus{
+  border-color:rgba(255,255,255,.3);
+  box-shadow:0 0 0 3px rgba(255,255,255,.04);
+}
+
+.field select option{
+  background:#11151d;
+}
+
+/* ==========================================================
+   PROFILE
+========================================================== */
+
+.profile{
+  display:grid;
+  grid-template-columns:92px 1fr auto;
+  gap:18px;
+  align-items:center;
+}
+
+.avatar{
+  width:92px;
+  height:92px;
+  display:grid;
+  place-items:center;
+  border-radius:18px;
+  background:linear-gradient(145deg,#252a38,#11141b);
+  border:1px solid var(--line);
+  font-size:40px;
+}
+
+.name{
+  font-size:28px;
+  font-weight:1000;
+}
+
+.rank{
+  margin-top:4px;
+  color:var(--orange);
+  font-size:12px;
+  font-weight:1000;
+  letter-spacing:2px;
+}
+
+.streak{
+  text-align:right;
+}
+
+.streak .n{
+  font-size:42px;
+  font-weight:1000;
+  color:var(--lime);
+}
+
+.xp{
+  margin-top:22px;
+}
+
+.xpTop{
+  display:flex;
+  justify-content:space-between;
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:8px;
+}
+
+.bar{
+  height:10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.07);
+  overflow:hidden;
+}
+
+.fill{
+  width:0;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    var(--red),
+    var(--orange)
+  );
+  transition:1s;
+}
+
+/* ==========================================================
+   STATS
+========================================================== */
+
+.statgrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+  margin-top:18px;
+}
+
+@media(max-width:900px){
+  .statgrid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:520px){
+  .statgrid{
+    grid-template-columns:1fr;
+  }
+}
+
+.stat .big{
+  font-size:38px;
+  font-weight:1000;
+  margin-top:12px;
+  word-break:break-word;
+}
+
+.stat small{
+  color:var(--muted);
+}
+
+/* ==========================================================
+   CHOICES
+========================================================== */
+
+.choicegrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+}
+
+.choice{
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(255,255,255,.03);
+  transition:.2s;
+}
+
+.choice:hover{
+  transform:translateY(-3px);
+  border-color:rgba(255,255,255,.23);
+}
+
+.choice input{
+  accent-color:var(--red);
+  margin-right:8px;
+}
+
+.choice strong{
+  display:block;
+  margin-bottom:5px;
+}
+
+.choice span{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+/* ==========================================================
+   LEADERBOARD
+========================================================== */
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,
+td{
+  padding:13px 10px;
+  text-align:left;
+  border-bottom:1px solid var(--line);
+}
+
+th{
+  font-size:11px;
+  letter-spacing:1px;
+  color:var(--muted);
+}
+
+.you{
+  color:var(--lime);
+  font-weight:900;
+}
+
+#leaderboardCard{
+  display:none;
+}
+
+/* ==========================================================
+   INFO
+========================================================== */
+
+.info{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:15px;
+}
+
+.info p{
+  color:var(--muted);
+  line-height:1.65;
+}
+
+details{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:rgba(255,255,255,.025);
+}
+
+summary{
+  cursor:pointer;
+  font-weight:800;
+}
+
+/* ==========================================================
+   XP
+========================================================== */
+
+.unlock{
+  padding:22px;
+  border:1px dashed rgba(200,255,50,.35);
+  background:linear-gradient(
+    135deg,
+    rgba(200,255,50,.05),
+    rgba(255,51,72,.05)
+  );
+  border-radius:18px;
+}
+
+.timer{
+  font-size:44px;
+  font-weight:1000;
+  letter-spacing:-2px;
+}
+
+.claim{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:20px;
+}
+
+@media(max-width:700px){
+  .claim{
+    display:block;
+  }
+}
+
+/* ==========================================================
+   BLACK HOLE
+========================================================== */
+
+#blackhole{
+  position:fixed;
+  left:50%;
+  top:50%;
+  width:0;
+  height:0;
+  transform:translate(-50%,-50%);
+  z-index:250;
+  pointer-events:none;
+  opacity:0;
+}
+
+#blackhole.active{
+  animation:blackholeAppear 2s cubic-bezier(.7,0,.1,1) forwards;
+}
+
+.blackhole-core{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:32px;
+  height:32px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:#000;
+  box-shadow:
+    0 0 20px #000,
+    0 0 45px rgba(0,0,0,.95),
+    0 0 90px rgba(0,0,0,.85),
+    0 0 150px rgba(0,0,0,.70);
+}
+
+.blackhole-ring{
+  position:absolute;
+  left:50%;
+  top:50%;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  border:2px solid rgba(255,255,255,.08);
+}
+
+.ring1{
+  width:80px;
+  height:80px;
+}
+
+.ring2{
+  width:130px;
+  height:130px;
+  border-color:rgba(255,51,72,.14);
+}
+
+.ring3{
+  width:190px;
+  height:190px;
+  border-color:rgba(255,138,61,.10);
+}
+
+@keyframes blackholeAppear{
+
+  0%{
+    opacity:0;
+    width:0;
+    height:0;
+  }
+
+  16%{
+    opacity:1;
+    width:90px;
+    height:90px;
+  }
+
+  40%{
+    opacity:1;
+    width:220px;
+    height:220px;
+  }
+
+  66%{
+    opacity:1;
+    width:470px;
+    height:470px;
+  }
+
+  84%{
+    opacity:1;
+    width:720px;
+    height:720px;
+  }
+
+  100%{
+    opacity:0;
+    width:0;
+    height:0;
+  }
+}
+
+#setup.blackhole-eaten{
+  animation:blackholeConsume 1.8s cubic-bezier(.7,0,.1,1) forwards;
+  pointer-events:none;
+  transform-origin:center center;
+}
+
+@keyframes blackholeConsume{
+
+  0%{
+    opacity:1;
+    transform:scale(1) rotate(0deg);
+    filter:blur(0);
+  }
+
+  20%{
+    transform:scale(.98) rotate(-1deg);
+    filter:blur(1px);
+  }
+
+  45%{
+    opacity:.92;
+    transform:scale(.76) rotate(4deg);
+    filter:blur(3px);
+  }
+
+  68%{
+    opacity:.56;
+    transform:scale(.42) rotate(-8deg);
+    filter:blur(7px);
+  }
+
+  88%{
+    opacity:.15;
+    transform:scale(.10) rotate(18deg);
+    filter:blur(15px);
+  }
+
+  100%{
+    opacity:0;
+    transform:scale(0) rotate(35deg);
+    filter:blur(22px);
+  }
+}
+
+/* ==========================================================
+   TOAST
+========================================================== */
+
+#toast{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:300;
+  padding:13px 16px;
+  border-radius:11px;
+  background:#131821;
+  border:1px solid var(--line);
+  transform:translateY(100px);
+  opacity:0;
+  transition:.25s;
+}
+
+#toast.show{
+  transform:translateY(0);
+  opacity:1;
+}
+
+/* ==========================================================
+   STATUS
+========================================================== */
+
+.status-panel{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:18px;
+  padding:12px 15px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+
+.status-left{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--lime);
+  box-shadow:0 0 15px var(--lime);
+}
+
+.status-count{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* ==========================================================
+   BUILD IN PROGRESS
+========================================================== */
+
+#buildProgress{
+  width:100%;
+  padding:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  color:#666c77;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:3px;
+  border-top:1px solid rgba(255,255,255,.06);
+  background:#050609;
+}
+
+.build-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--orange);
+  box-shadow:0 0 14px var(--orange);
+  animation:buildPulse 1.4s infinite;
+}
+
+.build-line{
+  width:45px;
+  height:1px;
+  background:linear-gradient(
+    90deg,
+    rgba(255,138,61,.5),
+    transparent
+  );
+}
+
+@keyframes buildPulse{
+
+  0%,100%{
+    opacity:.35;
+    transform:scale(.8);
+  }
+
+  50%{
+    opacity:1;
+    transform:scale(1.2);
+  }
+}
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+footer{
+  padding:65px 20px 32px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.credit{
+  font-weight:900;
+  color:#fff;
+}
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media(max-width:700px){
+
+  header{
+    padding:13px 15px;
+  }
+
+  nav{
+    gap:10px;
+    font-size:12px;
+  }
+
+  .profile{
+    grid-template-columns:70px 1fr;
+  }
+
+  .avatar{
+    width:70px;
+    height:70px;
+  }
+
+  .streak{
+    grid-column:1/-1;
+    text-align:left;
+  }
+
+  .hero h1{
+    letter-spacing:-4px;
+  }
+
+  .status-panel{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+<div class="grid"></div>
+<div class="noise"></div>
+
+<!-- BLACK HOLE -->
+<div id="blackhole">
+  <div class="blackhole-core"></div>
+  <div class="blackhole-ring ring1"></div>
+  <div class="blackhole-ring ring2"></div>
+  <div class="blackhole-ring ring3"></div>
+</div>
+
+<header>
+
+  <div class="logo">
+    RIVALS<b>//</b>ARENA
+  </div>
+
+  <nav>
+    <a href="#setup">PLAYER</a>
+    <a href="#dashboard">DASHBOARD</a>
+    <a href="#info">INFO</a>
+    <a href="#rewards">XP</a>
+  </nav>
+
+</header>
+
+<main>
+
+<!-- ========================================================
+     HERO
+======================================================== -->
+
+<section class="hero">
+
+  <div>
+
+    <div class="kicker">
+      <span class="dot"></span>
+      ARENA HUB ONLINE
+    </div>
+
+    <h1>RIVALS</h1>
+
+    <p>
+      A fan-made competitive player hub inspired by sleek lobby panels,
+      neon floor lines, giant status boards and competitive arena interfaces.
+    </p>
+
+    <button class="btn" id="jumpBtn">
+      BUILD MY PLAYER
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     PLAYER SETUP
+======================================================== -->
+
+<section class="section" id="setup">
+
+  <div class="title">
+
+    <h2>Player Setup</h2>
+
+    <p>
+      Create your player profile once. After generation, this setup terminal
+      will be swallowed by a literal black hole and permanently disappear.
+    </p>
+
+  </div>
+
+  <div class="card">
+
+    <div class="setup">
+
+      <div class="field">
+        <label>USERNAME</label>
+        <input
+          id="username"
+          placeholder="Enter username"
+          maxlength="32"
+        >
+      </div>
+
+      <div class="field">
+        <label>RANK</label>
+
+        <select id="rank">
+          <option>Bronze</option>
+          <option>Silver</option>
+          <option>Gold</option>
+          <option>Platinum</option>
+          <option>Diamond</option>
+          <option>Elite</option>
+          <option>Champion</option>
+        </select>
+
+      </div>
+
+      <div class="field">
+        <label>LEVEL</label>
+
+        <input
+          id="level"
+          type="number"
+          min="1"
+          max="1000"
+          value="25"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label>WIN STREAK</label>
+
+        <input
+          id="streak"
+          type="number"
+          min="0"
+          value="7"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label>HOURS PLAYED</label>
+
+        <input
+          id="hours"
+          type="number"
+          min="0"
+          value="37"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label>FAVOURITE MODE</label>
+
+        <select id="mode">
+          <option>1v1</option>
+          <option>2v2</option>
+          <option>3v3</option>
+          <option>4v4</option>
+          <option>5v5</option>
+        </select>
+
+      </div>
+
+      <div class="field">
+
+        <label>FAVOURITE MAP</label>
+
+        <input
+          id="map"
+          placeholder="Enter favourite map"
+          maxlength="50"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label>PLAYSTYLE</label>
+
+        <select id="style">
+          <option>Aggressive</option>
+          <option>Tactical</option>
+          <option>Defensive</option>
+          <option>Movement-focused</option>
+          <option>Objective-focused</option>
+        </select>
+
+      </div>
+
+    </div>
+
+    <button class="btn" id="saveBtn">
+      GENERATE PLAYER
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     DASHBOARD
+======================================================== -->
+
+<section class="section" id="dashboard">
+
+  <div class="title">
+
+    <h2>Player Dashboard</h2>
+
+    <p>
+      Nothing is shown until a player profile has actually been created.
+    </p>
+
+  </div>
+
+  <div class="card">
+
+    <div class="profile">
+
+      <div class="avatar">
+        ◈
+      </div>
+
+      <div>
+
+        <div
+          class="name"
+          id="outName"
+        >—</div>
+
+        <div
+          class="rank"
+          id="outRank"
+        >—</div>
+
+        <div class="muted">
+
+          LEVEL
+          <span id="outLevel">—</span>
+
+        </div>
+
+      </div>
+
+      <div class="streak">
+
+        <div class="muted">
+          WIN STREAK
+        </div>
+
+        <div
+          class="n"
+          id="outStreak"
+        >—</div>
+
+      </div>
+
+    </div>
+
+    <div class="xp">
+
+      <div class="xpTop">
+
+        <span>
+          LEVEL PROGRESS
+        </span>
+
+        <span id="xpText">
+          — / — XP
+        </span>
+
+      </div>
+
+      <div class="bar">
+
+        <div
+          class="fill"
+          id="xpFill"
+        ></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="statgrid">
+
+    <div class="card stat">
+
+      <div class="muted">
+        MODE
+      </div>
+
+      <div
+        class="big"
+        id="outMode"
+      >—</div>
+
+      <small>
+        Favourite format
+      </small>
+
+    </div>
+
+
+    <div class="card stat">
+
+      <div class="muted">
+        MAP
+      </div>
+
+      <div
+        class="big"
+        id="outMap"
+      >—</div>
+
+      <small>
+        Favourite map
+      </small>
+
+    </div>
+
+
+    <div class="card stat">
+
+      <div class="muted">
+        PLAYSTYLE
+      </div>
+
+      <div
+        class="big"
+        id="outStyle"
+      >—</div>
+
+      <small>
+        Selected by player
+      </small>
+
+    </div>
+
+
+    <div class="card stat">
+
+      <div class="muted">
+        PLAYTIME
+      </div>
+
+      <div
+        class="big"
+        id="outHours"
+      >—</div>
+
+      <small>
+        Hours entered
+      </small>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     COMPETITIVE PROFILE
+======================================================== -->
+
+<section class="section">
+
+  <div class="title">
+
+    <h2>
+      Competitive Profile
+    </h2>
+
+    <p>
+      Your profile summary in one clean panel.
+    </p>
+
+  </div>
+
+
+  <div class="grid2">
+
+    <div class="card">
+
+      <h3>
+        Player Preferences
+      </h3>
+
+      <div class="choicegrid">
+
+        <label class="choice">
+
+          <input
+            type="radio"
+            checked
+            disabled
+          >
+
+          <strong>
+            Favourite Mode
+          </strong>
+
+          <span id="prefMode">
+            —
+          </span>
+
+        </label>
+
+
+        <label class="choice">
+
+          <input
+            type="radio"
+            checked
+            disabled
+          >
+
+          <strong>
+            Playstyle
+          </strong>
+
+          <span id="prefStyle">
+            —
+          </span>
+
+        </label>
+
+
+        <label class="choice">
+
+          <input
+            type="radio"
+            checked
+            disabled
+          >
+
+          <strong>
+            Favourite Map
+          </strong>
+
+          <span id="prefMap">
+            —
+          </span>
+
+        </label>
+
+
+        <label class="choice">
+
+          <input
+            type="radio"
+            checked
+            disabled
+          >
+
+          <strong>
+            Main Goal
+          </strong>
+
+          <span id="prefGoal">
+            —
+          </span>
+
+        </label>
+
+      </div>
+
+    </div>
+
+
+    <div class="card">
+
+      <h3>
+        Player Rating
+      </h3>
+
+      <p class="muted">
+        A simple profile score calculated from the information you entered.
+      </p>
+
+      <div
+        style="font-size:60px;font-weight:1000"
+        id="profileScore"
+      >—</div>
+
+      <div class="bar">
+
+        <div
+          class="fill"
+          id="scoreFill"
+        ></div>
+
+      </div>
+
+      <p
+        class="muted"
+        id="scoreText"
+      >
+        Create your player profile to calculate the score.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     COMMUNITY
+======================================================== -->
+
+<section class="section">
+
+  <div class="title">
+
+    <h2>
+      Community Leaderboard
+    </h2>
+
+    <p>
+      Six real profiles are required before the community system unlocks.
+    </p>
+
+  </div>
+
+
+  <div class="status-panel">
+
+    <div class="status-left">
+
+      <span class="status-dot"></span>
+
+      COMMUNITY NETWORK
+
+    </div>
+
+    <div
+      class="status-count"
+      id="communityStatus"
+    >
+      CONNECTING...
+    </div>
+
+  </div>
+
+
+  <div
+    class="card"
+    id="leaderboardCard"
+  >
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            #
+          </th>
+
+          <th>
+            PLAYER
+          </th>
+
+          <th>
+            RANK
+          </th>
+
+          <th>
+            LEVEL
+          </th>
+
+          <th>
+            STREAK
+          </th>
+
+        </tr>
+
+      </thead>
+
+      <tbody
+        id="leaderboardBody"
+      ></tbody>
+
+    </table>
+
+  </div>
+
+
+  <div
+    class="card"
+    id="leaderboardLocked"
+  >
+
+    <h3>
+      🔒 Leaderboard Locked
+    </h3>
+
+    <p
+      class="muted"
+      id="leaderboardMessage"
+    >
+      Waiting for 6 player profiles.
+    </p>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     INFO
+======================================================== -->
+
+<section
+  class="section"
+  id="info"
+>
+
+  <div class="title">
+
+    <h2>
+      Rivals Info
+    </h2>
+
+    <p>
+      Project information separated from the player systems.
+    </p>
+
+  </div>
+
+
+  <div class="info">
+
+    <article class="info-card card">
+
+      <h3>
+        🧪 What is this?
+      </h3>
+
+      <p>
+        This is a fan-made interface inspired by the visual language of
+        a competitive shooter lobby: bright floor lines, dark panels,
+        status boards, giant buttons and fast menu navigation.
+      </p>
+
+      <details>
+
+        <summary>
+          Important note
+        </summary>
+
+        <p>
+          This website is a mock interface. It does not connect to
+          Roblox servers or retrieve live Roblox player data.
+        </p>
+
+      </details>
+
+    </article>
+
+
+    <article class="info-card card">
+
+      <h3>
+        🏗️ Who made it?
+      </h3>
+
+      <p>
+        The concept, layout and code are a collaborative fan project made by
+        <span class="credit">
+          Prateek × ChatGPT
+        </span>.
+      </p>
+
+      <details>
+
+        <summary>
+          Project team
+        </summary>
+
+        <p>
+          Prateek — creative direction, player ideas and testing.
+          ChatGPT — coding, interface design and systems logic.
+        </p>
+
+      </details>
+
+    </article>
+
+
+    <article class="info-card card">
+
+      <h3>
+        🛰️ Why the lobby style?
+      </h3>
+
+      <p>
+        The design uses a futuristic hub approach with neon pathways,
+        dark metallic surfaces, oversized status displays and compact menus.
+      </p>
+
+      <details>
+
+        <summary>
+          Design reference
+        </summary>
+
+        <p>
+          The visual direction was informed by publicly available
+          screenshots of the game's lobby and hub areas.
+        </p>
+
+      </details>
+
+    </article>
+
+
+    <article class="info-card card">
+
+      <h3>
+        🧠 Web tech inside
+      </h3>
+
+      <p>
+        This single file uses CSS variables, responsive Grid, Canvas
+        animation, localStorage, a persistent device ID, Supabase,
+        dynamic DOM updates and a timed XP system.
+      </p>
+
+      <details>
+
+        <summary>
+          Why one file?
+        </summary>
+
+        <p>
+          Keeping everything in one HTML file makes the first version
+          extremely easy to edit and publish.
+        </p>
+
+      </details>
+
+    </article>
+
+
+    <article class="info-card card">
+
+      <h3>
+        🎯 No fake stats
+      </h3>
+
+      <p>
+        The personal dashboard displays information the player actually
+        entered. The profile score is derived from those values.
+      </p>
+
+      <details>
+
+        <summary>
+          What is calculated?
+        </summary>
+
+        <p>
+          Profile rating and personal level progress are calculated
+          locally. Community XP unlock status is based on the shared
+          profile count.
+        </p>
+
+      </details>
+
+    </article>
+
+
+    <article class="info-card card">
+
+      <h3>
+        ⚡ Built for expansion
+      </h3>
+
+      <p>
+        Later versions can add challenge tracking, themes, map cards,
+        cosmetics, match history and additional profile modules.
+      </p>
+
+      <details>
+
+        <summary>
+          Future possibilities
+        </summary>
+
+        <p>
+          The current backend architecture makes it possible to add
+          more shared community systems later.
+        </p>
+
+      </details>
+
+    </article>
+
+  </div>
+
+</section>
+
+
+<!-- ========================================================
+     TIMED XP
+======================================================== -->
+
+<section
+  class="section"
+  id="rewards"
+>
+
+  <div class="title">
+
+    <h2>
+      Timed XP Claim
+    </h2>
+
+    <p>
+      Five scheduled claims, then the cycle restarts.
+      XP activates only after the community reaches 6 profiles.
+    </p>
+
+  </div>
+
+
+  <div class="unlock">
+
+    <div class="claim">
+
+      <div>
+
+        <div class="muted">
+          CURRENT CLAIM
+        </div>
+
+        <div
+          class="timer"
+          id="claimTimer"
+        >
+          LOCKED
+        </div>
+
+        <div
+          class="muted"
+          id="claimStatus"
+        >
+          Waiting for the community to reach 6 profiles.
+        </div>
+
+      </div>
+
+
+      <button
+        class="btn"
+        id="claimBtn"
+        disabled
+      >
+        CLAIM XP
+      </button>
+
+    </div>
+
+
+    <div
+      style="margin-top:22px"
+      class="bar"
+    >
+
+      <div
+        class="fill"
+        id="cycleFill"
+      ></div>
+
+    </div>
+
+
+    <p class="muted">
+
+      Claim 1: 0 min ·
+      Claim 2: 15 min ·
+      Claim 3: 30 min ·
+      Claim 4: 45 min ·
+      Claim 5: 60 min ·
+      then reset.
+
+    </p>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<!-- ========================================================
+     FOOTER
+======================================================== -->
+
+<footer>
+
+  <div class="credit">
+    PRATEEK × CHATGPT
+  </div>
+
+  <p>
+    Fan-made RIVALS inspired interface · Built as a web experiment
+  </p>
+
+</footer>
+
+
+<!-- ABSOLUTELY LAST PAGE ELEMENT -->
+<div id="buildProgress">
+
+  <span class="build-dot"></span>
+
+  BUILD IN PROGRESS
+
+  <span class="build-line"></span>
+
+</div>
+
+
+<div id="toast">
+  Ready.
+</div>
+
+
+<script>
+
+/* ==========================================================
+   SUPABASE CONFIG
+========================================================== */
+
+/*
+  REPLACE THESE TWO VALUES.
+
+  Supabase Dashboard
+  → Project Settings
+  → API
+
+  Use the project's URL and publishable key.
+*/
+
+const SUPABASE_URL =
+  "https://rkywgrysqdlshtalaqbi.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_oUkBoaoeg1w9kGUCTUGbWw_nV6ZJUdv";
+
+
+let supabaseClient = null;
+
+if(
+  SUPABASE_URL.startsWith("http") &&
+  !SUPABASE_URL.includes("YOUR_SUPABASE")
+){
+
+  supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+}
+
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+const $ =
+  id => document.getElementById(id);
+
+const PROFILE_CREATED_KEY =
+  "rivals_profile_created";
+
+const CURRENT_PLAYER_KEY =
+  "rivals_current_player";
+
+const DEVICE_ID_KEY =
+  "rivals_device_id";
+
+
+/* ==========================================================
+   DEVICE ID
+========================================================== */
+
+/*
+  This device ID is generated once and kept in localStorage.
+
+  It allows the shared database to reject another profile
+  from the same browser/device storage.
+*/
+
+function getDeviceId(){
+
+  let id =
+    localStorage.getItem(
+      DEVICE_ID_KEY
+    );
+
+  if(id){
+    return id;
+  }
+
+  id =
+    (
+      crypto.randomUUID
+        ? crypto.randomUUID()
+        : (
+            Date.now().toString(36) +
+            Math.random().toString(36).slice(2)
+          )
+    );
+
+  localStorage.setItem(
+    DEVICE_ID_KEY,
+    id
+  );
+
+  return id;
+
+}
+
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+function readForm(){
+
+  return {
+
+    username:
+      $("username").value.trim() ||
+      "PLAYER_ONE",
+
+    rank:
+      $("rank").value,
+
+    level:
+      Math.max(
+        1,
+        Math.min(
+          1000,
+          Number($("level").value) || 1
+        )
+      ),
+
+    streak:
+      Math.max(
+        0,
+        Number($("streak").value) || 0
+      ),
+
+    hours:
+      Math.max(
+        0,
+        Number($("hours").value) || 0
+      ),
+
+    mode:
+      $("mode").value,
+
+    map:
+      $("map").value.trim() ||
+      "Not entered",
+
+    playstyle:
+      $("style").value
+
+  };
+
+}
+
+
+/* ==========================================================
+   EMPTY DASHBOARD
+========================================================== */
+
+function clearDashboard(){
+
+  $("outName").textContent =
+    "—";
+
+  $("outRank").textContent =
+    "—";
+
+  $("outLevel").textContent =
+    "—";
+
+  $("outStreak").textContent =
+    "—";
+
+  $("outMode").textContent =
+    "—";
+
+  $("outMap").textContent =
+    "—";
+
+  $("outStyle").textContent =
+    "—";
+
+  $("outHours").textContent =
+    "—";
+
+  $("prefMode").textContent =
+    "—";
+
+  $("prefStyle").textContent =
+    "—";
+
+  $("prefMap").textContent =
+    "—";
+
+  $("prefGoal").textContent =
+    "—";
+
+  $("xpText").textContent =
+    "— / — XP";
+
+  $("xpFill").style.width =
+    "0%";
+
+  $("profileScore").textContent =
+    "—";
+
+  $("scoreFill").style.width =
+    "0%";
+
+  $("scoreText").textContent =
+    "Create your player profile to calculate the score.";
+
+}
+
+
+/* ==========================================================
+   DASHBOARD
+========================================================== */
+
+function updateDashboard(p){
+
+  if(!p){
+
+    clearDashboard();
+
+    return;
+
+  }
+
+  $("outName").textContent =
+    String(p.username).toUpperCase();
+
+  $("outRank").textContent =
+    String(p.rank).toUpperCase();
+
+  $("outLevel").textContent =
+    p.level;
+
+  $("outStreak").textContent =
+    p.streak;
+
+  $("outMode").textContent =
+    p.mode;
+
+  $("outMap").textContent =
+    p.map;
+
+  $("outStyle").textContent =
+    String(p.playstyle).toUpperCase();
+
+  $("outHours").textContent =
+    p.hours + "h";
+
+  $("prefMode").textContent =
+    p.mode;
+
+  $("prefStyle").textContent =
+    p.playstyle;
+
+  $("prefMap").textContent =
+    p.map;
+
+  $("prefGoal").textContent =
+    p.streak >= 10
+      ? "Protect the streak"
+      : p.level >= 50
+        ? "Push the level"
+        : "Climb the ranks";
+
+  const xp =
+    (Number(p.level) * 73) % 1000;
+
+  $("xpText").textContent =
+    `${xp} / 1000 XP`;
+
+  $("xpFill").style.width =
+    `${xp / 10}%`;
+
+  const rankBonus =
+    p.rank === "Champion"
+      ? 180
+      : p.rank === "Elite"
+        ? 140
+        : p.rank === "Diamond"
+          ? 110
+          : p.rank === "Platinum"
+            ? 85
+            : p.rank === "Gold"
+              ? 60
+              : p.rank === "Silver"
+                ? 35
+                : 15;
+
+  const score =
+    Math.min(
+      1000,
+      Math.round(
+        Number(p.level) * 5 +
+        Number(p.streak) * 9 +
+        Number(p.hours) * 2 +
+        rankBonus
+      )
+    );
+
+  $("profileScore").textContent =
+    score;
+
+  $("scoreFill").style.width =
+    `${score / 10}%`;
+
+  $("scoreText").textContent =
+    score >= 700
+      ? "High progression profile."
+      : score >= 400
+        ? "Solid progression profile."
+        : "Early progression profile.";
+
+}
+
+
+/* ==========================================================
+   SAVE LOCAL PLAYER
+========================================================== */
+
+function saveLocalPlayer(p){
+
+  localStorage.setItem(
+    CURRENT_PLAYER_KEY,
+    JSON.stringify(p)
+  );
+
+  localStorage.setItem(
+    PROFILE_CREATED_KEY,
+    "1"
+  );
+
+}
+
+
+/* ==========================================================
+   LOAD LOCAL PLAYER
+========================================================== */
+
+function loadLocalPlayer(){
+
+  const raw =
+    localStorage.getItem(
+      CURRENT_PLAYER_KEY
+    );
+
+  if(!raw){
+    return null;
+  }
+
+  try{
+
+    return JSON.parse(raw);
+
+  }catch{
+
+    return null;
+
+  }
+
+}
+
+
+/* ==========================================================
+   DISABLE SETUP
+========================================================== */
+
+function lockSetup(){
+
+  const setup =
+    $("setup");
+
+  if(!setup){
+    return;
+  }
+
+  const fields =
+    setup.querySelectorAll(
+      "input, select, button"
+    );
+
+  fields.forEach(
+    el => el.disabled = true
+  );
+
+}
+
+
+/* ==========================================================
+   DESTROY SETUP
+========================================================== */
+
+function consumeSetup(){
+
+  const setup =
+    $("setup");
+
+  const blackhole =
+    $("blackhole");
+
+  if(!setup || !blackhole){
+    return;
+  }
+
+  blackhole.classList.remove(
+    "active"
+  );
+
+  void blackhole.offsetWidth;
+
+  blackhole.classList.add(
+    "active"
+  );
+
+  setup.classList.add(
+    "blackhole-eaten"
+  );
+
+  setTimeout(()=>{
+
+    if(setup){
+
+      setup.remove();
+
+    }
+
+  },1800);
+
+}
+
+
+/* ==========================================================
+   SUPABASE CHECK
+========================================================== */
+
+async function getCommunityProfiles(){
+
+  if(!supabaseClient){
+
+    return {
+      data:null,
+      error:new Error(
+        "Supabase is not configured."
+      )
+    };
+
+  }
+
+  return await supabaseClient
+    .from("rivals_profiles")
+    .select("*")
+    .order(
+      "created_at",
+      {ascending:true}
+    );
+
+}
+
+
+/* ==========================================================
+   CREATE SHARED PROFILE
+========================================================== */
+
+async function createSharedProfile(p){
+
+  if(!supabaseClient){
+
+    throw new Error(
+      "Supabase is not configured. Add your project URL and publishable key."
+    );
+
+  }
+
+  const deviceId =
+    getDeviceId();
+
+  const result =
+    await supabaseClient
+      .from("rivals_profiles")
+      .insert({
+
+        device_id:
+          deviceId,
+
+        username:
+          p.username,
+
+        rank:
+          p.rank,
+
+        level:
+          p.level,
+
+        streak:
+          p.streak,
+
+        hours:
+          p.hours,
+
+        mode:
+          p.mode,
+
+        map:
+          p.map,
+
+        playstyle:
+          p.playstyle
+
+      })
+      .select()
+      .single();
+
+  return result;
+
+}
+
+
+/* ==========================================================
+   CHECK WHETHER THIS DEVICE ALREADY EXISTS
+========================================================== */
+
+async function deviceAlreadyHasProfile(){
+
+  if(!supabaseClient){
+
+    return false;
+
+  }
+
+  const result =
+    await supabaseClient
+      .from("rivals_profiles")
+      .select("id")
+      .eq(
+        "device_id",
+        getDeviceId()
+      )
+      .maybeSingle();
+
+  if(result.error){
+
+    console.error(
+      result.error
+    );
+
+    return false;
+
+  }
+
+  return !!result.data;
+
+}
+
+
+/* ==========================================================
+   LEADERBOARD
+========================================================== */
+
+function rankValue(rank){
+
+  const order = {
+
+    Bronze:1,
+    Silver:2,
+    Gold:3,
+    Platinum:4,
+    Diamond:5,
+    Elite:6,
+    Champion:7
+
+  };
+
+  return order[rank] || 0;
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value).replace(
+    /[&<>"']/g,
+    c => ({
+
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#39;"
+
+    }[c])
+  );
+
+}
+
+
+function renderLeaderboard(list){
+
+  if(!Array.isArray(list)){
+    return;
+  }
+
+  if(list.length < 6){
+
+    $("leaderboardCard").style.display =
+      "none";
+
+    $("leaderboardLocked").style.display =
+      "block";
+
+    const remaining =
+      6 - list.length;
+
+    $("leaderboardMessage").textContent =
+      remaining === 1
+        ? "1 more player profile is required."
+        : `${remaining} more player profiles are required.`;
+
+    return;
+
+  }
+
+  $("leaderboardCard").style.display =
+    "block";
+
+  $("leaderboardLocked").style.display =
+    "none";
+
+  const sorted =
+    [...list].sort(
+      (a,b) =>
+        rankValue(b.rank) -
+        rankValue(a.rank) ||
+        Number(b.level) -
+        Number(a.level) ||
+        Number(b.streak) -
+        Number(a.streak)
+    );
+
+  const current =
+    loadLocalPlayer();
+
+  const currentName =
+    current
+      ? String(current.username).toLowerCase()
+      : "";
+
+  $("leaderboardBody").innerHTML =
+    sorted
+      .slice(0,10)
+      .map((p,i)=>{
+
+        const isYou =
+          String(p.username).toLowerCase() ===
+          currentName;
+
+        return `
+
+          <tr>
+
+            <td>
+              ${i + 1}
+            </td>
+
+            <td
+              class="${isYou ? "you" : ""}"
+            >
+              ${escapeHtml(p.username)}
+            </td>
+
+            <td>
+              ${escapeHtml(p.rank)}
+            </td>
+
+            <td>
+              ${Number(p.level)}
+            </td>
+
+            <td>
+              ${Number(p.streak)}
+            </td>
+
+          </tr>
+
+        `;
+
+      })
+      .join("");
+
+}
+
+
+/* ==========================================================
+   COMMUNITY STATUS
+========================================================== */
+
+let cachedCommunityProfiles = [];
+
+
+function updateCommunityStatus(){
+
+  const count =
+    cachedCommunityProfiles.length;
+
+  $("communityStatus").textContent =
+    `${count} / 6 PROFILES`;
+
+  if(count >= 6){
+
+    $("communityStatus").textContent =
+      "6+ PROFILES // XP ONLINE";
+
+  }
+
+}
+
+
+/* ==========================================================
+   FETCH COMMUNITY
+========================================================== */
+
+async function refreshCommunity(){
+
+  if(!supabaseClient){
+
+    $("communityStatus").textContent =
+      "DATABASE NOT CONFIGURED";
+
+    $("leaderboardMessage").textContent =
+      "Add your Supabase URL and publishable key to connect the community system.";
+
+    updateRewardUI();
+
+    return;
+
+  }
+
+  const result =
+    await getCommunityProfiles();
+
+  if(result.error){
+
+    console.error(
+      result.error
+    );
+
+    $("communityStatus").textContent =
+      "DATABASE ERROR";
+
+    updateRewardUI();
+
+    return;
+
+  }
+
+  cachedCommunityProfiles =
+    result.data || [];
+
+  updateCommunityStatus();
+
+  renderLeaderboard(
+    cachedCommunityProfiles
+  );
+
+  updateRewardUI();
+
+}
+
+
+/* ==========================================================
+   XP STORAGE
+========================================================== */
+
+const XP_AMOUNTS = [
+  100,
+  150,
+  200,
+  250,
+  300
+];
+
+const CLAIM_INTERVAL =
+  15 * 60 * 1000;
+
+const SHARED_XP_KEY =
+  "rivals_shared_xp_state";
+
+
+function getRewardState(){
+
+  return JSON.parse(
+    localStorage.getItem(
+      SHARED_XP_KEY
+    ) ||
+    JSON.stringify({
+
+      cycle:0,
+      lastClaim:null,
+      xp:0
+
+    })
+  );
+
+}
+
+
+function saveRewardState(state){
+
+  localStorage.setItem(
+    SHARED_XP_KEY,
+    JSON.stringify(state)
+  );
+
+}
+
+
+function rewardInfo(){
+
+  const state =
+    getRewardState();
+
+  if(
+    state.lastClaim === null
+  ){
+
+    return {
+
+      state,
+      ready:true,
+      remaining:0
+
+    };
+
+  }
+
+  const elapsed =
+    Date.now() -
+    Number(state.lastClaim);
+
+  const remaining =
+    Math.max(
+      0,
+      CLAIM_INTERVAL -
+      elapsed
+    );
+
+  return {
+
+    state,
+    ready:remaining === 0,
+    remaining
+
+  };
+
+}
+
+
+function formatMs(ms){
+
+  const total =
+    Math.ceil(
+      ms / 1000
+    );
+
+  const minutes =
+    Math.floor(
+      total / 60
+    );
+
+  const seconds =
+    total % 60;
+
+  return (
+    String(minutes).padStart(2,"0") +
+    ":" +
+    String(seconds).padStart(2,"0")
+  );
+
+}
+
+
+/* ==========================================================
+   XP UI
+========================================================== */
+
+function updateRewardUI(){
+
+  const count =
+    cachedCommunityProfiles.length;
+
+  const unlocked =
+    count >= 6;
+
+  const info =
+    rewardInfo();
+
+  const state =
+    info.state;
+
+  const claimNumber =
+    state.cycle + 1;
+
+  if(!unlocked){
+
+    $("claimTimer").textContent =
+      "LOCKED";
+
+    $("claimBtn").disabled =
+      true;
+
+    $("claimBtn").style.opacity =
+      ".45";
+
+    const remaining =
+      6 - count;
+
+    $("claimStatus").textContent =
+      remaining === 1
+        ? "1 more profile is required before XP activates."
+        : `${remaining} more profiles are required before XP activates.`;
+
+    $("cycleFill").style.width =
+      "0%";
+
+    return;
+
+  }
+
+  if(info.ready){
+
+    $("claimTimer").textContent =
+      "READY";
+
+    $("claimBtn").disabled =
+      false;
+
+    $("claimBtn").style.opacity =
+      "1";
+
+    $("claimStatus").textContent =
+      `Claim ${claimNumber} of 5 is ready.`;
+
+  }else{
+
+    $("claimTimer").textContent =
+      formatMs(
+        info.remaining
+      );
+
+    $("claimBtn").disabled =
+      true;
+
+    $("claimBtn").style.opacity =
+      ".5";
+
+    $("claimStatus").textContent =
+      "Next claim available after the 15-minute timer.";
+
+  }
+
+  const cycleProgress =
+    (state.cycle / 5) * 100;
+
+  $("cycleFill").style.width =
+    `${cycleProgress}%`;
+
+}
+
+
+/* ==========================================================
+   CLAIM XP
+========================================================== */
+
+$("claimBtn").addEventListener(
+  "click",
+  ()=>{
+
+    if(
+      cachedCommunityProfiles.length <
+      6
+    ){
+
+      showToast(
+        "XP UNLOCKS AT 6 PROFILES"
+      );
+
+      return;
+
+    }
+
+    const info =
+      rewardInfo();
+
+    if(!info.ready){
+
+      return;
+
+    }
+
+    const state =
+      info.state;
+
+    const amount =
+      XP_AMOUNTS[
+        state.cycle
+      ];
+
+    state.xp +=
+      amount;
+
+    state.lastClaim =
+      Date.now();
+
+    state.cycle =
+      (
+        state.cycle + 1
+      ) % 5;
+
+    saveRewardState(
+      state
+    );
+
+    showToast(
+      `+${amount} XP CLAIMED`
+    );
+
+    updateRewardUI();
+
+  }
+);
+
+
+/* ==========================================================
+   PROFILE CREATION
+========================================================== */
+
+$("saveBtn").addEventListener(
+  "click",
+  async ()=>{
+
+    /*
+      Local hard lock.
+    */
+    if(
+      localStorage.getItem(
+        PROFILE_CREATED_KEY
+      ) === "1"
+    ){
+
+      showToast(
+        "PROFILE ALREADY CREATED ON THIS DEVICE"
+      );
+
+      return;
+
+    }
+
+
+    const button =
+      $("saveBtn");
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "CONNECTING...";
+
+
+    /*
+      Check Supabase connection.
+    */
+    if(!supabaseClient){
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "GENERATE PLAYER";
+
+      showToast(
+        "ADD SUPABASE CREDENTIALS FIRST"
+      );
+
+      return;
+
+    }
+
+
+    /*
+      Prevent this same device ID
+      from creating a second profile.
+    */
+    const alreadyExists =
+      await deviceAlreadyHasProfile();
+
+    if(alreadyExists){
+
+      localStorage.setItem(
+        PROFILE_CREATED_KEY,
+        "1"
+      );
+
+      const existing =
+        loadLocalPlayer();
+
+      if(existing){
+
+        updateDashboard(
+          existing
+        );
+
+      }
+
+      const setup =
+        $("setup");
+
+      if(setup){
+
+        setup.remove();
+
+      }
+
+      button.disabled =
+        true;
+
+      showToast(
+        "THIS DEVICE ALREADY HAS A PROFILE"
+      );
+
+      return;
+
+    }
+
+
+    const player =
+      readForm();
+
+
+    /*
+      Create the profile in the shared
+      Supabase database.
+    */
+    const result =
+      await createSharedProfile(
+        player
+      );
+
+
+    if(result.error){
+
+      console.error(
+        result.error
+      );
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        "GENERATE PLAYER";
+
+
+      /*
+        Unique device conflict.
+      */
+      if(
+        String(
+          result.error.code
+        ) === "23505"
+      ){
+
+        localStorage.setItem(
+          PROFILE_CREATED_KEY,
+          "1"
+        );
+
+        showToast(
+          "THIS DEVICE ALREADY HAS A PROFILE"
+        );
+
+        return;
+
+      }
+
+
+      showToast(
+        "PROFILE COULD NOT BE CREATED"
+      );
+
+      return;
+
+    }
+
+
+    /*
+      Save locally so this browser
+      can never use setup again.
+    */
+    saveLocalPlayer(
+      player
+    );
+
+
+    /*
+      Update personal dashboard.
+    */
+    updateDashboard(
+      player
+    );
+
+
+    /*
+      Black-hole the setup.
+    */
+    consumeSetup();
+
+
+    showToast(
+      "PLAYER PROFILE CREATED"
+    );
+
+
+    /*
+      Refresh community count.
+    */
+    await refreshCommunity();
+
+
+    setTimeout(()=>{
+
+      $("dashboard")
+        .scrollIntoView({
+          behavior:"smooth",
+          block:"start"
+        });
+
+    },1200);
+
+  }
+);
+
+
+/* ==========================================================
+   JUMP BUTTON
+========================================================== */
+
+$("jumpBtn").addEventListener(
+  "click",
+  ()=>{
+
+    const setup =
+      $("setup");
+
+    if(setup){
+
+      setup.scrollIntoView({
+        behavior:"smooth"
+      });
+
+      return;
+
+    }
+
+    $("dashboard")
+      .scrollIntoView({
+        behavior:"smooth"
+      });
+
+  }
+);
+
+
+/* ==========================================================
+   TOAST
+========================================================== */
+
+let toastTimer;
+
+function showToast(message){
+
+  $("toast").textContent =
+    message;
+
+  $("toast")
+    .classList.add("show");
+
+  clearTimeout(
+    toastTimer
+  );
+
+  toastTimer =
+    setTimeout(
+      ()=>{
+        $("toast")
+          .classList.remove("show");
+      },
+      2400
+    );
+
+}
+
+
+/* ==========================================================
+   CANVAS
+========================================================== */
+
+const canvas =
+  $("bg");
+
+const ctx =
+  canvas.getContext("2d");
+
+let particles = [];
+
+
+function resizeCanvas(){
+
+  canvas.width =
+    innerWidth;
+
+  canvas.height =
+    innerHeight;
+
+}
+
+
+addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+resizeCanvas();
+
+
+for(let i=0;i<80;i++){
+
+  particles.push({
+
+    x:
+      Math.random() *
+      canvas.width,
+
+    y:
+      Math.random() *
+      canvas.height,
+
+    r:
+      Math.random() * 2 +
+      .5,
+
+    s:
+      Math.random() * .5 +
+      .1,
+
+    d:
+      Math.random() * .5 -
+      .25
+
+  });
+
+}
+
+
+function animate(){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  for(
+    const p of particles
+  ){
+
+    p.y -=
+      p.s;
+
+    p.x +=
+      p.d;
+
+
+    if(p.y < -10){
+
+      p.y =
+        canvas.height + 10;
+
+    }
+
+
+    if(p.x < -10){
+
+      p.x =
+        canvas.width + 10;
+
+    }
+
+
+    if(
+      p.x >
+      canvas.width + 10
+    ){
+
+      p.x = -10;
+
+    }
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      p.x,
+      p.y,
+      p.r,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle =
+      "rgba(255,255,255,.20)";
+
+    ctx.fill();
+
+  }
+
+  requestAnimationFrame(
+    animate
+  );
+
+}
+
+
+animate();
+
+
+/* ==========================================================
+   STARTUP
+========================================================== */
+
+(async function start(){
+
+  /*
+    Always begin with an empty dashboard.
+  */
+  clearDashboard();
+
+
+  /*
+    Check local persistent lock.
+  */
+  const localCreated =
+    localStorage.getItem(
+      PROFILE_CREATED_KEY
+    ) === "1";
+
+
+  if(localCreated){
+
+    const player =
+      loadLocalPlayer();
+
+    if(player){
+
+      updateDashboard(
+        player
+      );
+
+    }
+
+
+    /*
+      Setup has already been consumed
+      on this device.
+    */
+    const setup =
+      $("setup");
+
+    if(setup){
+
+      setup.remove();
+
+    }
+
+  }else{
+
+    /*
+      Extra backend check protects the device
+      if local storage was cleared.
+    */
+    if(supabaseClient){
+
+      const backendHasProfile =
+        await deviceAlreadyHasProfile();
+
+      if(backendHasProfile){
+
+        localStorage.setItem(
+          PROFILE_CREATED_KEY,
+          "1"
+        );
+
+        /*
+          There is no way to reconstruct
+          a previously-created profile here
+          unless it is downloaded from the DB.
+        */
+        const result =
+          await supabaseClient
+            .from("rivals_profiles")
+            .select("*")
+            .eq(
+              "device_id",
+              getDeviceId()
+            )
+            .maybeSingle();
+
+        if(
+          !result.error &&
+          result.data
+        ){
+
+          const p = {
+
+            username:
+              result.data.username,
+
+            rank:
+              result.data.rank,
+
+            level:
+              result.data.level,
+
+            streak:
+              result.data.streak,
+
+            hours:
+              result.data.hours,
+
+            mode:
+              result.data.mode,
+
+            map:
+              result.data.map,
+
+            playstyle:
+              result.data.playstyle
+
+          };
+
+          saveLocalPlayer(
+            p
+          );
+
+          updateDashboard(
+            p
+          );
+
+        }
+
+
+        const setup =
+          $("setup");
+
+        if(setup){
+
+          setup.remove();
+
+        }
+
+      }
+
+    }
+
+  }
+
+
+  /*
+    Initial community data.
+  */
+  await refreshCommunity();
+
+
+  /*
+    Timers.
+  */
+  setInterval(
+    updateRewardUI,
+    1000
+  );
+
+
+  /*
+    Refresh community state
+    every 10 seconds so all friends
+    see new profiles quickly.
+  */
+  setInterval(
+    refreshCommunity,
+    10000
+  );
+
+})();
+</script>
+
+</body>
+</html>
