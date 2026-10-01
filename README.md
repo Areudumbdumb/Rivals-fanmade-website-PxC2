@@ -1,121 +1,35 @@
-RIVALS // ARENA HUB
+# BloxCode Radar
 
-A fan-made Roblox Rivals inspired player hub built as a single-page HTML web experiment. The site focuses on a competitive arena/lobby look, player profile generation, a dashboard, a community leaderboard, and timed XP features.
+A small Roblox game-code search site. The public page shows commonly searched games first, suggests popular games while someone types, and tries to correct a misspelling to a game already in the shared list. Searches and popularity counts are public to every visitor.
 
-What the website does
+## What it does
 
-Lets a player enter a username, rank, level, win streak, hours played, favourite mode, favourite map, and playstyle.
+- Shows the most searched saved games at the top, with their shared search counts.
+- Offers the five most popular games as search suggestions; matching games and a close spelling appear while typing.
+- If a search is close to a saved game, it opens that game's shared result and says which spelling it matched.
+- If no close saved game exists, it searches public web pages for the entered name. If no pages are found, it asks the visitor to try the correct spelling.
+- Re-checks saved public source pages hourly through the Cloudflare Worker.
+- Labels extracted codes unverified; only redeeming a code in its game can confirm it works.
 
-Generates a local player profile and updates the dashboard from the values entered.
+## Update the existing site
 
-Calculates a simple profile score and XP progress from the entered profile values.
+The existing Cloudflare D1 database needs one small schema change before the updated Worker runs. Do these steps in order:
 
-Uses a black-hole animation to consume the Player Setup terminal after player generation.
+1. In Cloudflare, open the existing `bloxcode-radar` D1 database, open its SQL Console, and run the contents of `worker/migration-popularity.sql` **once**. Do not run this migration a second time.
+2. Open the `bloxcode-radar-api` Worker code editor, replace its code with all of `worker/index.js`, then deploy. Keep its existing `DB` binding and encrypted `TAVILY_API_KEY` secret.
+3. In the GitHub repository, upload/replace `index.html`, the `worker` folder, and `README.md`, then commit. GitHub Pages will publish the updated search bar and public popularity list.
 
-The hero BUILD MY PLAYER button is also pulled into the black hole when the setup is consumed.
+The migration adds a counter column to the existing `games` table. The updated Worker needs that column, so do step 1 before deploying the Worker.
 
-Includes a community leaderboard backed by Supabase. The leaderboard unlocks after at least 6 profiles are available.
+## Fresh setup
 
-Includes a timed XP claim system with five claims in a 60-minute cycle.
+For a new D1 database, run `worker/schema.sql` once instead of the migration. Deploy `worker/index.js` to a Cloudflare Worker, bind the D1 database as `DB`, and add the Tavily API key as an encrypted Worker secret named `TAVILY_API_KEY`. Set the Worker Cron Trigger to `17 * * * *` for hourly refreshes. Publish `index.html` on GitHub Pages; it calls the existing Worker URL and contains no API key.
 
-Uses animated information panels with a high-tech dropdown/opening effect.
+Never put the Tavily key in `index.html`, GitHub, or a message. The Worker caps new game searches at 900 Tavily credits per month and limits each visitor to five new-game searches per day. Searches of saved games use the database and do not call web search.
 
-Visual design
+## Project files
 
-The site uses a dark futuristic HUD style with neon accents, glowing panels, grid/noise overlays, animated status elements, high-tech dashboard stat cards, and responsive layouts for smaller screens.
-
-The main RIVALS logo uses the original styling from the earlier version of the site.
-
-Tech used
-
-HTML5
-
-CSS3
-
-Vanilla JavaScript
-
-Canvas background animation
-
-Local Storage
-
-Supabase JavaScript client
-
-Responsive CSS Grid
-
-Files
-
-index.html
-README.md
-
-Everything is currently kept in one HTML file so the project is easy to edit and publish.
-
-Supabase setup
-
-The community system uses a Supabase project. In index.html, set:
-
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_KEY = "YOUR_SUPABASE_PUBLISHABLE_KEY";
-
-Use the project's normal browser-safe publishable/anon key. Do not put a Supabase service_role key into the frontend.
-
-The site reads and inserts rows from the rivals_profiles table. The profile data used by the site includes:
-
-device_id
-username
-rank
-level
-streak
-hours
-mode
-map
-playstyle
-created_at
-
-Player generation flow
-
-The player fills in the setup form.
-
-The profile is saved locally.
-
-The dashboard is updated.
-
-The setup terminal is disabled and consumed by the black-hole animation.
-
-The hero BUILD MY PLAYER button is pulled into the same black hole effect and disappears.
-
-The shared profile is sent to Supabase when the community backend is configured.
-
-Community leaderboard
-
-The leaderboard stays locked until 6 profiles exist. Once unlocked, the site sorts profiles by rank, then level, then win streak and displays the top 10 results.
-
-XP system
-
-The timed XP system has five claim stages:
-
-Claim 1: 0 min
-Claim 2: 15 min
-Claim 3: 30 min
-Claim 4: 45 min
-Claim 5: 60 min
-Then the cycle resets.
-
-XP only activates after the community reaches the required profile count.
-
-Local storage
-
-The browser stores the current player, a generated device ID, profile-created state, and the timed XP state using localStorage.
-
-Important limitation
-
-This is a fan-made interface. It does not connect to Roblox servers or retrieve live Roblox player statistics. The profile dashboard shows information entered by the player, while the site's score and XP values are calculated locally.
-
-Publishing
-
-The project can be published as a normal static HTML site on a static hosting service. Upload index.html and make sure the Supabase configuration is set before using the community features.
-
-Credits
-
-Concept, player ideas, creative direction and testing: Prateek
-
-Coding, interface design and systems logic: ChatGPT
+- `index.html` — public GitHub Pages search page.
+- `worker/index.js` — search API and hourly refresh job.
+- `worker/schema.sql` — full tables for a new database.
+- `worker/migration-popularity.sql` — one-time change for the existing database.
